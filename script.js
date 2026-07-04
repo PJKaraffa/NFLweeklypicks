@@ -75,6 +75,7 @@ function showLogin() {
 function showPicks() {
   document.getElementById("loginView").classList.add("hidden");
   document.getElementById("picksView").classList.remove("hidden");
+
   buildGames();
   loadMyPicks();
 }
@@ -127,6 +128,7 @@ function getSelectedPicks() {
     }
 
     picks[game.id] = {
+      game_id: game.id,
       away: game.away,
       home: game.home,
       pick: selected.value
@@ -144,12 +146,28 @@ async function submitPicks() {
   const weekNumber = Number(document.getElementById("weekNumber").value);
   const tiebreakRaw = document.getElementById("tiebreak").value;
 
+  if (!season) {
+    msg.textContent = "Please enter a season.";
+    return;
+  }
+
+  if (!weekNumber) {
+    msg.textContent = "Please enter a week number.";
+    return;
+  }
+
   if (tiebreakRaw === "") {
     msg.textContent = "Please enter a tie breaker.";
     return;
   }
 
   const tiebreak = Number(tiebreakRaw);
+
+  if (tiebreak < 0) {
+    msg.textContent = "Tie breaker cannot be negative.";
+    return;
+  }
+
   const picks = getSelectedPicks();
 
   if (!picks) {
@@ -166,16 +184,23 @@ async function submitPicks() {
 
   const user = userData.user;
 
+  const displayName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email;
+
   const { error } = await db
     .from("weekly_picks")
     .upsert(
       {
         user_id: user.id,
         email: user.email,
+        display_name: displayName,
         season: season,
         week_number: weekNumber,
         picks: picks,
         tiebreak: tiebreak,
+        submitted_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
@@ -216,7 +241,7 @@ async function loadMyPicks() {
 
   if (error) {
     console.error(error);
-    msg.textContent = error.message;
+    if (msg) msg.textContent = error.message;
     return;
   }
 
@@ -224,7 +249,7 @@ async function loadMyPicks() {
 
   if (!data) {
     document.getElementById("tiebreak").value = "";
-    msg.textContent = "No picks saved yet for this week.";
+    if (msg) msg.textContent = "No picks saved yet for this week.";
     return;
   }
 
@@ -241,5 +266,8 @@ async function loadMyPicks() {
   });
 
   document.getElementById("tiebreak").value = data.tiebreak;
-  msg.textContent = "Your saved picks were loaded.";
+
+  if (msg) {
+    msg.textContent = "Your saved picks were loaded.";
+  }
 }
