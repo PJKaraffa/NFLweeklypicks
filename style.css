@@ -34,10 +34,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  opacity: .9;
-}
-
 .container {
   max-width: 1000px;
   margin: 30px auto;
@@ -48,49 +44,42 @@ button:hover {
   display: none;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.week-box {
-  background: #111827;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+.top-bar,
+.week-box,
+.teams,
+.pick-options {
   display: flex;
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.week-box input {
-  width: 100px;
+.top-bar {
+  justify-content: space-between;
+}
+
+.week-box,
+.game-card,
+.tiebreak-box {
+  background: #111827;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.week-box input,
+.tiebreak-box input {
   padding: 10px;
   border-radius: 8px;
   border: none;
 }
 
 .game-card {
-  background: #111827;
   border: 1px solid #1f2937;
-  padding: 18px;
-  border-radius: 12px;
-  margin-bottom: 12px;
 }
 
 .teams {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.pick-options {
-  display: flex;
-  gap: 15px;
 }
 
 .pick-options label {
@@ -100,23 +89,8 @@ button:hover {
   cursor: pointer;
 }
 
-.tiebreak-box {
-  background: #111827;
-  padding: 15px;
-  border-radius: 12px;
-  margin-top: 20px;
-}
-
-.tiebreak-box input {
-  width: 150px;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  margin-left: 10px;
-}
-
 .submit-btn {
-  margin-top: 20px;
+  margin-top: 10px;
   width: 100%;
   font-size: 18px;
 }
