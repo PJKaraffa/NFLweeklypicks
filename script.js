@@ -17,16 +17,22 @@ const GAMES = [
   { id: 16, away: "Minnesota", home: "Chicago" }
 ];
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const { data } = await supabase.auth.getSession();
+document.addEventListener("DOMContentLoaded", async function () {
+  buildGames();
+
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    console.error(error);
+    showLogin();
+    return;
+  }
 
   if (data.session) {
     showPicks();
   } else {
     showLogin();
   }
-
-  buildGames();
 });
 
 async function login() {
@@ -41,7 +47,7 @@ async function login() {
     return;
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await db.auth.signInWithPassword({
     email: email,
     password: password
   });
@@ -57,7 +63,7 @@ async function login() {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   showLogin();
 }
 
@@ -75,9 +81,12 @@ function showPicks() {
 
 function buildGames() {
   const gamesDiv = document.getElementById("games");
+
+  if (!gamesDiv) return;
+
   gamesDiv.innerHTML = "";
 
-  GAMES.forEach(game => {
+  GAMES.forEach(function (game) {
     const div = document.createElement("div");
     div.className = "game-card";
 
@@ -133,8 +142,14 @@ async function submitPicks() {
 
   const season = Number(document.getElementById("season").value);
   const weekNumber = Number(document.getElementById("weekNumber").value);
-  const tiebreak = Number(document.getElementById("tiebreak").value);
+  const tiebreakRaw = document.getElementById("tiebreak").value;
 
+  if (tiebreakRaw === "") {
+    msg.textContent = "Please enter a tie breaker.";
+    return;
+  }
+
+  const tiebreak = Number(tiebreakRaw);
   const picks = getSelectedPicks();
 
   if (!picks) {
@@ -142,12 +157,7 @@ async function submitPicks() {
     return;
   }
 
-  if (!tiebreak && tiebreak !== 0) {
-    msg.textContent = "Please enter a tie breaker.";
-    return;
-  }
-
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const { data: userData, error: userError } = await db.auth.getUser();
 
   if (userError || !userData.user) {
     msg.textContent = "You must be logged in.";
@@ -156,7 +166,7 @@ async function submitPicks() {
 
   const user = userData.user;
 
-  const { error } = await supabase
+  const { error } = await db
     .from("weekly_picks")
     .upsert(
       {
@@ -174,6 +184,7 @@ async function submitPicks() {
     );
 
   if (error) {
+    console.error(error);
     msg.textContent = error.message;
     return;
   }
@@ -183,18 +194,19 @@ async function submitPicks() {
 
 async function loadMyPicks() {
   const msg = document.getElementById("pickMessage");
-  msg.textContent = "";
+
+  if (msg) msg.textContent = "";
 
   const season = Number(document.getElementById("season").value);
   const weekNumber = Number(document.getElementById("weekNumber").value);
 
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: userData, error: userError } = await db.auth.getUser();
 
-  if (!userData.user) {
+  if (userError || !userData.user) {
     return;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("weekly_picks")
     .select("*")
     .eq("user_id", userData.user.id)
@@ -203,6 +215,7 @@ async function loadMyPicks() {
     .maybeSingle();
 
   if (error) {
+    console.error(error);
     msg.textContent = error.message;
     return;
   }
@@ -215,7 +228,7 @@ async function loadMyPicks() {
     return;
   }
 
-  Object.keys(data.picks).forEach(gameId => {
+  Object.keys(data.picks).forEach(function (gameId) {
     const pick = data.picks[gameId].pick;
 
     const radio = document.querySelector(
