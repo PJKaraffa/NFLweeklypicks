@@ -41,16 +41,18 @@ async function login() {
     return;
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: email,
     password: password
   });
 
   if (error) {
+    console.error(error);
     msg.textContent = error.message;
     return;
   }
 
+  console.log("Logged in:", data.user);
   showPicks();
 }
 
