@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weekly Picks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="loginView" class="card">
+  <h1>Weekly Picks</h1>
+  <h2>Staff Login</h2>
+
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <p id="loginMessage"></p>
+</div>
+
+<div id="picksView" class="container hidden">
+
+  <div class="top-bar">
+    <h1>Weekly NFL Picks</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="week-box">
+    <label>Season</label>
+    <input id="season" type="number" value="2026">
+
+    <label>Week</label>
+    <input id="weekNumber" type="number" value="1">
+
+    <button onclick="loadMyPicks()">Load My Picks</button>
+  </div>
+
+  <div id="games"></div>
+
+  <div class="tiebreak-box">
+    <label>Tie Breaker - Total Points</label>
+    <input id="tiebreak" type="number" placeholder="Example: 47">
+  </div>
+
+  <button class="submit-btn" onclick="submitPicks()">Submit Picks</button>
+
+  <p id="pickMessage"></p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

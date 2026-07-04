@@ -1,0 +1,128 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+}
+
+.card {
+  width: 350px;
+  margin: 100px auto;
+  background: #111827;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0,0,0,.4);
+  text-align: center;
+}
+
+.card input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  box-sizing: border-box;
+}
+
+button {
+  background: #22c55e;
+  color: #052e16;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: .9;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.week-box {
+  background: #111827;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.week-box input {
+  width: 100px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+.game-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pick-options {
+  display: flex;
+  gap: 15px;
+}
+
+.pick-options label {
+  background: #020617;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tiebreak-box {
+  background: #111827;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.tiebreak-box input {
+  width: 150px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-left: 10px;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  width: 100%;
+  font-size: 18px;
+}
+
+#loginMessage,
+#pickMessage {
+  margin-top: 15px;
+  color: #facc15;
+}
