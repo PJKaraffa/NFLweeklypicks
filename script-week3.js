@@ -1,20 +1,20 @@
 const GAMES = [
-  { id: 1, away: "Atlanta", home: "Green Bay" },
-  { id: 2, away: "Chargers", home: "Buffalo" },
-  { id: 3, away: "Carolina", home: "Cleveland" },
-  { id: 4, away: "Jets", home: "Detroit" },
-  { id: 5, away: "Houston", home: "Indianapolis" },
-  { id: 6, away: "Kansas City", home: "Miami" },
-  { id: 7, away: "Tennessee", home: "Giants" },
-  { id: 8, away: "Cincinnati", home: "Pittsburgh" },
-  { id: 9, away: "Seattle", home: "Washington" },
-  { id: 10, away: "New England", home: "Jacksonville" },
-  { id: 11, away: "Arizona", home: "San Francisco" },
-  { id: 12, away: "Minnesota", home: "Tampa Bay" },
-  { id: 13, away: "Baltimore", home: "Dallas" },
-  { id: 14, away: "Las Vegas", home: "New Orleans" },
-  { id: 15, away: "Rams", home: "Denver" },
-  { id: 16, away: "Philadelphia", home: "Chicago" }
+  { id: 1, away: "New England", home: "Seattle" },
+  { id: 2, away: "San Francisco", home: "Rams" },
+  { id: 3, away: "Tampa Bay", home: "Cincinnati" },
+  { id: 4, away: "New Orleans", home: "Detroit" },
+  { id: 5, away: "Jets", home: "Tennessee" },
+  { id: 6, away: "Baltimore", home: "Indianapolis" },
+  { id: 7, away: "Atlanta", home: "Pittsburgh" },
+  { id: 8, away: "Chicago", home: "Carolina"},
+  { id: 9, away: "Cleveland", home: "Jacksonville" },
+  { id: 10, away: "Buffalo", home: "Houston" },
+  { id: 11, away: "Miami", home: "Raiders" },
+  { id: 12, away: "Green Bay", home: "Minnesota" },
+  { id: 13, away:  "Washington", home: "Eagles" },
+  { id: 14, away: "Arizona", home: "Chargers" },
+  { id: 15, away: "Dallas", home: "Giants" },
+  { id: 16, away: "Denver", home: "Chiefs" }
 ];
 
 document.addEventListener("DOMContentLoaded", async function () {
