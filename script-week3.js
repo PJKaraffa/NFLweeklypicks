@@ -14,7 +14,7 @@ const GAMES = [
   { id: 13, away: "Baltimore", home: "Dallas" },
   { id: 14, away: "Las Vegas", home: "New Orleans" },
   { id: 15, away: "Rams", home: "Denver" },
-  { id: 16, away: "Philadelphia", home: "Denver" }
+  { id: 16, away: "Philadelphia", home: "Chicago" }
 ];
 
 document.addEventListener("DOMContentLoaded", async function () {
