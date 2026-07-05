@@ -7,7 +7,6 @@
 
 <body>
 
-  <!-- LOGIN PAGE -->
   <div id="loginView" class="card">
     <h1>Weekly Picks</h1>
     <h2>Staff Login</h2>
@@ -20,7 +19,6 @@
     <p id="loginMessage"></p>
   </div>
 
-  <!-- PICKS PAGE -->
   <div id="picksView" class="container hidden">
 
     <div class="top-bar">
@@ -30,10 +28,10 @@
 
     <div class="week-box">
       <label for="season">Season</label>
-      <input id="season" type="number" value="2026" onchange="loadMyPicks()">
+      <input id="season" type="number" value="2026" onchange="weekChanged()">
 
       <label for="weekNumber">Week</label>
-      <input id="weekNumber" type="number" value="1" onchange="loadMyPicks()">
+      <input id="weekNumber" type="number" value="1" onchange="weekChanged()">
     </div>
 
     <div id="games"></div>
@@ -55,6 +53,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="games.js"></script>
   <script src="script.js"></script>
 
 </body>
