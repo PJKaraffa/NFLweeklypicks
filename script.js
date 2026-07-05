@@ -30,15 +30,15 @@ function setGamesForCurrentWeek() {
   const season = getCurrentSeason();
   const weekNumber = getCurrentWeek();
 
-  if (
-    NFL_GAMES[season] &&
-    NFL_GAMES[season][weekNumber]
-  ) {
+  console.log("Season:", season);
+  console.log("Week:", weekNumber);
+  console.log("Week Data:", NFL_GAMES[season][weekNumber]);
+
+  if (NFL_GAMES[season] && NFL_GAMES[season][weekNumber]) {
     GAMES = NFL_GAMES[season][weekNumber];
   } else {
     GAMES = [];
   }
-}
 
 function weekChanged() {
   setGamesForCurrentWeek();
