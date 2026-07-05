@@ -1,7 +1,24 @@
-let GAMES = [];
+const GAMES = [
+  { id: 1, away: "Atlanta", home: "Green Bay" },
+  { id: 2, away: "Chargers", home: "Buffalo" },
+  { id: 3, away: "Carolina", home: "Cleveland" },
+  { id: 4, away: "Jets", home: "Detroit" },
+  { id: 5, away: "Houston", home: "Indianapolis" },
+  { id: 6, away: "Kansas City", home: "Miami" },
+  { id: 7, away: "Tennessee", home: "Giants" },
+  { id: 8, away: "Cincinnati", home: "Pittsburgh" },
+  { id: 9, away: "Seattle", home: "Washington" },
+  { id: 10, away: "New England", home: "Jacksonville" },
+  { id: 11, away: "Arizona", home: "San Francisco" },
+  { id: 12, away: "Minnesota", home: "Tampa Bay" },
+  { id: 13, away: "Baltimore", home: "Dallas" },
+  { id: 14, away: "Las Vegas", home: "New Orleans" },
+  { id: 15, away: "Rams", home: "Denver" },
+  { id: 16, away: "Philadelphia", home: "Denver" }
+];
 
 document.addEventListener("DOMContentLoaded", async function () {
-  setGamesForCurrentWeek();
+  buildGames();
 
   const { data, error } = await db.auth.getSession();
 
@@ -18,38 +35,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 });
 
-function getCurrentSeason() {
-  return Number(document.getElementById("season").value);
-}
-
-function getCurrentWeek() {
-  return Number(document.getElementById("weekNumber").value);
-}
-
-function setGamesForCurrentWeek() {
-  const season = getCurrentSeason();
-  const weekNumber = getCurrentWeek();
-
-  if (NFL_GAMES[season] && NFL_GAMES[season][weekNumber]) {
-    GAMES = NFL_GAMES[season][weekNumber];
-  } else {
-    GAMES = [];
-  }
-}
-
-function weekChanged() {
-  setGamesForCurrentWeek();
-  buildGames();
-  clearPickForm();
-}
-
-function clearPickForm() {
-  document.getElementById("tiebreak").value = "";
-
-  const msg = document.getElementById("pickMessage");
-  if (msg) msg.textContent = "";
-}
-
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -57,18 +42,9 @@ async function login() {
 
   msg.textContent = "";
 
-  if (!email || !password) {
-    msg.textContent = "Please enter email and password.";
-    return;
-  }
-
-  const { data, error } = await db.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
 
   if (error) {
-    console.error(error);
     msg.textContent = error.message;
     return;
   }
@@ -89,46 +65,24 @@ function showLogin() {
 function showPicks() {
   document.getElementById("loginView").classList.add("hidden");
   document.getElementById("picksView").classList.remove("hidden");
-
-  setGamesForCurrentWeek();
   buildGames();
   loadMyPicks();
 }
 
 function buildGames() {
   const gamesDiv = document.getElementById("games");
-
   gamesDiv.innerHTML = "";
 
-  if (GAMES.length === 0) {
-    gamesDiv.innerHTML = `
-      <div class="game-card">
-        <strong>No games have been entered for this week yet.</strong>
-      </div>
-    `;
-    return;
-  }
-
-  GAMES.forEach(function (game) {
+  GAMES.forEach(game => {
     const div = document.createElement("div");
     div.className = "game-card";
 
     div.innerHTML = `
       <div class="teams">
-        <div>
-          <strong>${game.away}</strong> @ <strong>${game.home}</strong>
-        </div>
-
+        <div><strong>${game.away}</strong> @ <strong>${game.home}</strong></div>
         <div class="pick-options">
-          <label>
-            <input type="radio" name="game_${game.id}" value="${game.away}">
-            ${game.away}
-          </label>
-
-          <label>
-            <input type="radio" name="game_${game.id}" value="${game.home}">
-            ${game.home}
-          </label>
+          <label><input type="radio" name="game_${game.id}" value="${game.away}"> ${game.away}</label>
+          <label><input type="radio" name="game_${game.id}" value="${game.home}"> ${game.home}</label>
         </div>
       </div>
     `;
@@ -140,18 +94,10 @@ function buildGames() {
 function getSelectedPicks() {
   const picks = {};
 
-  if (GAMES.length === 0) {
-    return null;
-  }
-
   for (const game of GAMES) {
-    const selected = document.querySelector(
-      `input[name="game_${game.id}"]:checked`
-    );
+    const selected = document.querySelector(`input[name="game_${game.id}"]:checked`);
 
-    if (!selected) {
-      return null;
-    }
+    if (!selected) return null;
 
     picks[game.id] = {
       game_id: game.id,
@@ -168,26 +114,12 @@ async function submitPicks() {
   const msg = document.getElementById("pickMessage");
   msg.textContent = "";
 
-  const season = getCurrentSeason();
-  const weekNumber = getCurrentWeek();
+  const season = Number(document.getElementById("season").value);
+  const weekNumber = Number(document.getElementById("weekNumber").value);
   const tiebreakRaw = document.getElementById("tiebreak").value;
-
-  setGamesForCurrentWeek();
-
-  if (GAMES.length === 0) {
-    msg.textContent = "No games entered for this week.";
-    return;
-  }
 
   if (tiebreakRaw === "") {
     msg.textContent = "Please enter a tie breaker.";
-    return;
-  }
-
-  const tiebreak = Number(tiebreakRaw);
-
-  if (tiebreak < 0) {
-    msg.textContent = "Tie breaker cannot be negative.";
     return;
   }
 
@@ -207,32 +139,22 @@ async function submitPicks() {
 
   const user = userData.user;
 
-  const displayName =
-    user.user_metadata?.full_name ||
-    user.user_metadata?.name ||
-    user.email;
-
-  const { error } = await db
-    .from("weekly_picks")
-    .upsert(
-      {
-        user_id: user.id,
-        email: user.email,
-        display_name: displayName,
-        season: season,
-        week_number: weekNumber,
-        picks: picks,
-        tiebreak: tiebreak,
-        submitted_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        onConflict: "user_id,season,week_number"
-      }
-    );
+  const { error } = await db.from("weekly_picks").upsert(
+    {
+      user_id: user.id,
+      email: user.email,
+      display_name: user.email,
+      season: season,
+      week_number: weekNumber,
+      picks: picks,
+      tiebreak: Number(tiebreakRaw),
+      submitted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    { onConflict: "user_id,season,week_number" }
+  );
 
   if (error) {
-    console.error(error);
     msg.textContent = error.message;
     return;
   }
@@ -242,16 +164,14 @@ async function submitPicks() {
 
 async function loadMyPicks() {
   const msg = document.getElementById("pickMessage");
-  if (msg) msg.textContent = "";
+  msg.textContent = "";
 
-  const season = getCurrentSeason();
-  const weekNumber = getCurrentWeek();
+  const season = Number(document.getElementById("season").value);
+  const weekNumber = Number(document.getElementById("weekNumber").value);
 
-  const { data: userData, error: userError } = await db.auth.getUser();
+  const { data: userData } = await db.auth.getUser();
 
-  if (userError || !userData.user) {
-    return;
-  }
+  if (!userData.user) return;
 
   const { data, error } = await db
     .from("weekly_picks")
@@ -262,7 +182,6 @@ async function loadMyPicks() {
     .maybeSingle();
 
   if (error) {
-    console.error(error);
     msg.textContent = error.message;
     return;
   }
@@ -273,16 +192,10 @@ async function loadMyPicks() {
     return;
   }
 
-  Object.keys(data.picks).forEach(function (gameId) {
+  Object.keys(data.picks).forEach(gameId => {
     const pick = data.picks[gameId].pick;
-
-    const radio = document.querySelector(
-      `input[name="game_${gameId}"][value="${pick}"]`
-    );
-
-    if (radio) {
-      radio.checked = true;
-    }
+    const radio = document.querySelector(`input[name="game_${gameId}"][value="${pick}"]`);
+    if (radio) radio.checked = true;
   });
 
   document.getElementById("tiebreak").value = data.tiebreak;
@@ -290,17 +203,17 @@ async function loadMyPicks() {
 }
 
 async function exportMyPicks() {
-  const season = getCurrentSeason();
-  const weekNumber = getCurrentWeek();
+  const season = Number(document.getElementById("season").value);
+  const weekNumber = Number(document.getElementById("weekNumber").value);
 
-  const { data: userData, error: userError } = await db.auth.getUser();
+  const { data: userData } = await db.auth.getUser();
 
-  if (userError || !userData.user) {
+  if (!userData.user) {
     alert("You must be logged in.");
     return;
   }
 
-  const { data, error } = await db
+  const { data } = await db
     .from("weekly_picks")
     .select("*")
     .eq("user_id", userData.user.id)
@@ -308,59 +221,31 @@ async function exportMyPicks() {
     .eq("week_number", weekNumber)
     .maybeSingle();
 
-  if (error || !data) {
+  if (!data) {
     alert("No picks found to export.");
     return;
   }
 
-  let rows = [];
+  const rows = [["Season", "Week", "Email", "Game", "Away", "Home", "Pick"]];
 
-  rows.push([
-    "Season",
-    "Week",
-    "Email",
-    "Display Name",
-    "Game",
-    "Away",
-    "Home",
-    "Pick"
-  ]);
-
-  Object.keys(data.picks).forEach(function (gameId) {
+  Object.keys(data.picks).forEach(gameId => {
     const p = data.picks[gameId];
-
-    rows.push([
-      data.season,
-      data.week_number,
-      data.email,
-      data.display_name,
-      gameId,
-      p.away,
-      p.home,
-      p.pick
-    ]);
+    rows.push([data.season, data.week_number, data.email, gameId, p.away, p.home, p.pick]);
   });
 
   rows.push([]);
   rows.push(["Tie Breaker", data.tiebreak]);
 
-  const csv = rows
-    .map(row => row.map(csvEscape).join(","))
-    .join("\n");
-
+  const csv = rows.map(row => row.map(csvEscape).join(",")).join("\n");
   downloadFile(`my_picks_week_${weekNumber}.csv`, csv);
 }
 
 function csvEscape(value) {
   if (value === null || value === undefined) return "";
-
   const text = String(value);
-
-  if (text.includes(",") || text.includes('"') || text.includes("\n")) {
-    return `"${text.replaceAll('"', '""')}"`;
-  }
-
-  return text;
+  return text.includes(",") || text.includes('"') || text.includes("\n")
+    ? `"${text.replaceAll('"', '""')}"`
+    : text;
 }
 
 function downloadFile(filename, text) {
