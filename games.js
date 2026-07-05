@@ -73,5 +73,4 @@ const NFL_GAMES = {
     18: []
   }
 };
-],
    
