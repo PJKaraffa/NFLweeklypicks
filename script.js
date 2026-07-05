@@ -30,10 +30,6 @@ function setGamesForCurrentWeek() {
   const season = getCurrentSeason();
   const weekNumber = getCurrentWeek();
 
-  console.log("Season:", season);
-  console.log("Week:", weekNumber);
-  console.log("Week Data:", NFL_GAMES[season][weekNumber]);
-
   if (NFL_GAMES[season] && NFL_GAMES[season][weekNumber]) {
     GAMES = NFL_GAMES[season][weekNumber];
   } else {
@@ -44,7 +40,14 @@ function setGamesForCurrentWeek() {
 function weekChanged() {
   setGamesForCurrentWeek();
   buildGames();
-  loadMyPicks();
+  clearPickForm();
+}
+
+function clearPickForm() {
+  document.getElementById("tiebreak").value = "";
+
+  const msg = document.getElementById("pickMessage");
+  if (msg) msg.textContent = "";
 }
 
 async function login() {
@@ -94,7 +97,6 @@ function showPicks() {
 
 function buildGames() {
   const gamesDiv = document.getElementById("games");
-  const msg = document.getElementById("pickMessage");
 
   gamesDiv.innerHTML = "";
 
@@ -104,7 +106,6 @@ function buildGames() {
         <strong>No games have been entered for this week yet.</strong>
       </div>
     `;
-    if (msg) msg.textContent = "";
     return;
   }
 
@@ -266,9 +267,6 @@ async function loadMyPicks() {
     return;
   }
 
-  setGamesForCurrentWeek();
-  buildGames();
-
   if (!data) {
     document.getElementById("tiebreak").value = "";
     msg.textContent = "No picks saved yet for this week.";
@@ -328,7 +326,7 @@ async function exportMyPicks() {
     "Pick"
   ]);
 
-  Object.keys(data.picks).forEach(gameId => {
+  Object.keys(data.picks).forEach(function (gameId) {
     const p = data.picks[gameId];
 
     rows.push([
