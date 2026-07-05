@@ -271,3 +271,79 @@ async function loadMyPicks() {
     msg.textContent = "Your saved picks were loaded.";
   }
 }
+async function exportMyPicks() {
+  const season = Number(document.getElementById("season").value);
+  const weekNumber = Number(document.getElementById("weekNumber").value);
+
+  const { data: userData, error: userError } = await db.auth.getUser();
+
+  if (userError || !userData.user) {
+    alert("You must be logged in.");
+    return;
+  }
+
+  const { data, error } = await db
+    .from("weekly_picks")
+    .select("*")
+    .eq("user_id", userData.user.id)
+    .eq("season", season)
+    .eq("week_number", weekNumber)
+    .maybeSingle();
+
+  if (error || !data) {
+    alert("No picks found to export.");
+    return;
+  }
+
+  let rows = [];
+
+  rows.push(["Season", "Week", "Email", "Display Name", "Game", "Away", "Home", "Pick"]);
+
+  Object.keys(data.picks).forEach(gameId => {
+    const p = data.picks[gameId];
+
+    rows.push([
+      data.season,
+      data.week_number,
+      data.email,
+      data.display_name,
+      gameId,
+      p.away,
+      p.home,
+      p.pick
+    ]);
+  });
+
+  rows.push([]);
+  rows.push(["Tie Breaker", data.tiebreak]);
+
+  const csv = rows
+    .map(row => row.map(csvEscape).join(","))
+    .join("\n");
+
+  downloadFile(`my_picks_week_${weekNumber}.csv`, csv);
+}
+
+function csvEscape(value) {
+  if (value === null || value === undefined) return "";
+
+  const text = String(value);
+
+  if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+    return `"${text.replaceAll('"', '""')}"`;
+  }
+
+  return text;
+}
+
+function downloadFile(filename, text) {
+  const blob = new Blob([text], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
