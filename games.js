@@ -37,8 +37,7 @@ const NFL_GAMES = {
       { id: 15, away: "Indianapolis", home: "Kansas City" },
       { id: 16, away: "Giants", home: "Rams" }
     ],
-
-    3: [
+3: [
   { id: 1, away: "Atlanta", home: "Green Bay" },
   { id: 2, away: "Chargers", home: "Buffalo" },
   { id: 3, away: "Carolina", home: "Cleveland" },
@@ -56,20 +55,4 @@ const NFL_GAMES = {
   { id: 15, away: "Rams", home: "Denver" },
   { id: 16, away: "Philadelphia", home: "Denver" }
 ],
-    4: [],
-    5: [],
-    6: [],
-    7: [],
-    8: [],
-    9: [],
-    10: [],
-    11: [],
-    12: [],
-    13: [],
-    14: [],
-    15: [],
-    16: [],
-    17: [],
-    18: []
-  }
-};
+   
