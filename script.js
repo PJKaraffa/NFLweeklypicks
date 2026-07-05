@@ -1,24 +1,7 @@
-const GAMES = [
-  { id: 1, away: "Dallas", home: "Philadelphia" },
-  { id: 2, away: "Kansas City", home: "Chargers" },
-  { id: 3, away: "Tampa Bay", home: "Atlanta" },
-  { id: 4, away: "Cincinnati", home: "Cleveland" },
-  { id: 5, away: "Miami", home: "Indianapolis" },
-  { id: 6, away: "Las Vegas", home: "New England" },
-  { id: 7, away: "Arizona", home: "New Orleans" },
-  { id: 8, away: "Pittsburgh", home: "Jets" },
-  { id: 9, away: "Giants", home: "Washington" },
-  { id: 10, away: "Carolina", home: "Jacksonville" },
-  { id: 11, away: "Tennessee", home: "Denver" },
-  { id: 12, away: "San Francisco", home: "Seattle" },
-  { id: 13, away: "Detroit", home: "Green Bay" },
-  { id: 14, away: "Houston", home: "Rams" },
-  { id: 15, away: "Baltimore", home: "Buffalo" },
-  { id: 16, away: "Minnesota", home: "Chicago" }
-];
+let GAMES = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
-  buildGames();
+  setGamesForCurrentWeek();
 
   const { data, error } = await db.auth.getSession();
 
@@ -34,6 +17,34 @@ document.addEventListener("DOMContentLoaded", async function () {
     showLogin();
   }
 });
+
+function getCurrentSeason() {
+  return Number(document.getElementById("season").value);
+}
+
+function getCurrentWeek() {
+  return Number(document.getElementById("weekNumber").value);
+}
+
+function setGamesForCurrentWeek() {
+  const season = getCurrentSeason();
+  const weekNumber = getCurrentWeek();
+
+  if (
+    NFL_GAMES[season] &&
+    NFL_GAMES[season][weekNumber]
+  ) {
+    GAMES = NFL_GAMES[season][weekNumber];
+  } else {
+    GAMES = [];
+  }
+}
+
+function weekChanged() {
+  setGamesForCurrentWeek();
+  buildGames();
+  loadMyPicks();
+}
 
 async function login() {
   const email = document.getElementById("email").value.trim();
@@ -58,7 +69,6 @@ async function login() {
     return;
   }
 
-  console.log("Logged in:", data.user);
   showPicks();
 }
 
@@ -76,16 +86,26 @@ function showPicks() {
   document.getElementById("loginView").classList.add("hidden");
   document.getElementById("picksView").classList.remove("hidden");
 
+  setGamesForCurrentWeek();
   buildGames();
   loadMyPicks();
 }
 
 function buildGames() {
   const gamesDiv = document.getElementById("games");
-
-  if (!gamesDiv) return;
+  const msg = document.getElementById("pickMessage");
 
   gamesDiv.innerHTML = "";
+
+  if (GAMES.length === 0) {
+    gamesDiv.innerHTML = `
+      <div class="game-card">
+        <strong>No games have been entered for this week yet.</strong>
+      </div>
+    `;
+    if (msg) msg.textContent = "";
+    return;
+  }
 
   GAMES.forEach(function (game) {
     const div = document.createElement("div");
@@ -118,6 +138,10 @@ function buildGames() {
 function getSelectedPicks() {
   const picks = {};
 
+  if (GAMES.length === 0) {
+    return null;
+  }
+
   for (const game of GAMES) {
     const selected = document.querySelector(
       `input[name="game_${game.id}"]:checked`
@@ -142,17 +166,14 @@ async function submitPicks() {
   const msg = document.getElementById("pickMessage");
   msg.textContent = "";
 
-  const season = Number(document.getElementById("season").value);
-  const weekNumber = Number(document.getElementById("weekNumber").value);
+  const season = getCurrentSeason();
+  const weekNumber = getCurrentWeek();
   const tiebreakRaw = document.getElementById("tiebreak").value;
 
-  if (!season) {
-    msg.textContent = "Please enter a season.";
-    return;
-  }
+  setGamesForCurrentWeek();
 
-  if (!weekNumber) {
-    msg.textContent = "Please enter a week number.";
+  if (GAMES.length === 0) {
+    msg.textContent = "No games entered for this week.";
     return;
   }
 
@@ -219,11 +240,10 @@ async function submitPicks() {
 
 async function loadMyPicks() {
   const msg = document.getElementById("pickMessage");
-
   if (msg) msg.textContent = "";
 
-  const season = Number(document.getElementById("season").value);
-  const weekNumber = Number(document.getElementById("weekNumber").value);
+  const season = getCurrentSeason();
+  const weekNumber = getCurrentWeek();
 
   const { data: userData, error: userError } = await db.auth.getUser();
 
@@ -241,15 +261,16 @@ async function loadMyPicks() {
 
   if (error) {
     console.error(error);
-    if (msg) msg.textContent = error.message;
+    msg.textContent = error.message;
     return;
   }
 
+  setGamesForCurrentWeek();
   buildGames();
 
   if (!data) {
     document.getElementById("tiebreak").value = "";
-    if (msg) msg.textContent = "No picks saved yet for this week.";
+    msg.textContent = "No picks saved yet for this week.";
     return;
   }
 
@@ -266,14 +287,12 @@ async function loadMyPicks() {
   });
 
   document.getElementById("tiebreak").value = data.tiebreak;
-
-  if (msg) {
-    msg.textContent = "Your saved picks were loaded.";
-  }
+  msg.textContent = "Your saved picks were loaded.";
 }
+
 async function exportMyPicks() {
-  const season = Number(document.getElementById("season").value);
-  const weekNumber = Number(document.getElementById("weekNumber").value);
+  const season = getCurrentSeason();
+  const weekNumber = getCurrentWeek();
 
   const { data: userData, error: userError } = await db.auth.getUser();
 
@@ -297,7 +316,16 @@ async function exportMyPicks() {
 
   let rows = [];
 
-  rows.push(["Season", "Week", "Email", "Display Name", "Game", "Away", "Home", "Pick"]);
+  rows.push([
+    "Season",
+    "Week",
+    "Email",
+    "Display Name",
+    "Game",
+    "Away",
+    "Home",
+    "Pick"
+  ]);
 
   Object.keys(data.picks).forEach(gameId => {
     const p = data.picks[gameId];
