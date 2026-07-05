@@ -39,6 +39,7 @@ function setGamesForCurrentWeek() {
   } else {
     GAMES = [];
   }
+}
 
 function weekChanged() {
   setGamesForCurrentWeek();
